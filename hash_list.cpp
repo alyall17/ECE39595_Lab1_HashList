@@ -102,7 +102,21 @@ hash_list::hash_list(const hash_list &other) {
     if(!other.head) return; // Other list is empty
 
     // Copy first node
-    node* current = other.head;
+    head = new node{other.head->key, other.head->value, nullptr};
+    node* currentNew = head;
+    node* currentOther = other.head->next;
+
+    // Copy rest of the nodes
+    while(currentOther != nullptr) {
+        currentNew->next = new node{currentOther->key, currentOther->value, nullptr};
+        currentNew = currentNew->next;
+        currentOther = currentOther->next;
+    }
+
+    size = other.size;
+
+    // Copy first node
+    /*node* current = other.head;
     node* last = nullptr;
 
     while (current != nullptr) {
@@ -115,21 +129,62 @@ hash_list::hash_list(const hash_list &other) {
         last = newNode;
         current = current->next;
         size++;
-    }
+    }*/
 }
 
-hash_list &hash_list::operator=(const hash_list &other) { return *this; }
+// Assignment operator: clear old list, deep copy from other list
+hash_list &hash_list::operator=(const hash_list &other) {
+    if (this == &other) return *this; // Self-assignment check
 
-void hash_list::reset_iter() {}
+    // Free current nodes
+    node* current = head;
+    while (current != nullptr) {
+        node* nextNode = current->next;
+        delete current;
+        current = nextNode;
+    }
+    head = nullptr;
+    iter_ptr = nullptr;
+    size = 0;
+
+    if(!other.head) return *this; // Other list is empty
+
+    // Copy first node
+    head = new node{other.head->key, other.head->value, nullptr};
+    node* currentNew = head;
+    node* currentOther = other.head->next;
+
+    // Copy rest of the nodes
+    while(currentOther != nullptr) {
+        currentNew->next = new node{currentOther->key, currentOther->value, nullptr};
+        currentNew = currentNew->next;
+        currentOther = currentOther->next;
+    }
+
+    size = other.size;
+    return *this;
+}
+
+// Reset iterator to the start of the list
+void hash_list::reset_iter() {
+    iter_ptr = head;
+}
+
+// Move iterator to the next node
+void hash_list::increment_iter() {
+    if (iter_ptr) iter_ptr = iter_ptr->next;
+}
+
+// Return current key/value pointers or nullopt if iterator is null
+std::optional<std::pair<const int *, float *>> hash_list::get_iter_value() { 
+    if(!iter_ptr) return std::nullopt;
+    return std::pair<const int*, float*>{&(iter_ptr->key), &(iter_ptr->value)};
+}
 
 
-void hash_list::increment_iter() {}
-
-
-std::optional<std::pair<const int *, float *>> hash_list::get_iter_value() { return std::nullopt; }
-
-
-bool hash_list::iter_at_end() { return false; }
+bool hash_list::iter_at_end() {
+    return iter_ptr == nullptr;
+}
 /**-----------------------------------------------------------------------------------
  * END Part 2
  *------------------------------------------------------------------------------------*/
