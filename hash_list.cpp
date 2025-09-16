@@ -93,7 +93,30 @@ hash_list::~hash_list() {
  * START Part 2
  *------------------------------------------------------------------------------------*/
 
-hash_list::hash_list(const hash_list &other) {}
+ // Copy constructor: deep copy from other list
+hash_list::hash_list(const hash_list &other) {
+    head = nullptr;
+    iter_ptr = nullptr;
+    size = 0;
+
+    if(!other.head) return; // Other list is empty
+
+    // Copy first node
+    node* current = other.head;
+    node* last = nullptr;
+
+    while (current != nullptr) {
+        node* newNode = new node{current->key, current->value, nullptr};
+        if (head == nullptr) {
+            head = newNode; // First node
+        } else {
+            last->next = newNode; // Link previous node
+        }
+        last = newNode;
+        current = current->next;
+        size++;
+    }
+}
 
 hash_list &hash_list::operator=(const hash_list &other) { return *this; }
 
